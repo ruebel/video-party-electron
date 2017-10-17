@@ -1,11 +1,17 @@
-const fs = window.require('electron').remote.require('fs');
+import ReactPlayer from 'react-player';
+const remote = window.require('electron').remote;
+const fs = remote.require('fs');
+const path = remote.require('path');
 
 export const getFilesInFolder = folder => {
-  const files = fs.readdirSync(folder[0]);
+  const files = fs.readdirSync(folder);
   return files.reduce((total, file) => {
-    if (fs.statSync(folder + '/' + file).isDirectory()) {
-      return [...total, ...getFilesInFolder(folder + '/' + file)];
+    const filePath = path.join(folder, file);
+    if (fs.statSync(filePath).isDirectory()) {
+      return [...total, ...getFilesInFolder(filePath)];
+    } else if (ReactPlayer.canPlay(filePath)) {
+      return [...total, filePath];
     }
-    return [...total, folder + '/' + file];
+    return total;
   }, []);
 };

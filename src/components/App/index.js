@@ -32,7 +32,7 @@ class App extends Component {
   };
 
   handleFolderChange = folder => {
-    const files = getFilesInFolder(folder);
+    const files = getFilesInFolder(folder[0]);
     this.setState({
       files,
       folder
@@ -55,7 +55,9 @@ class App extends Component {
           <Button disabled={!files || !files.length} onClick={this.togglePlay}>
             {playing ? 'Stop' : 'Start'}
           </Button>
-          {files && <Player playing={playing} src={files[0]} />}
+          {files.map((f, i) => (
+            <Player key={i} playing={playing} startTime={i / 100} src={f} />
+          ))}
         </Inner>
       </Wrapper>
     );
