@@ -3,8 +3,9 @@ import styled from 'styled-components';
 
 import Button from '../Button';
 import H1 from '../typography/H1';
+import H2 from '../typography/H2';
 import OpenFolder from '../OpenFolder';
-import Video from '../Video';
+import WindowDetails from './WindowDetails';
 
 import { getFilesInFolder } from '../utils';
 
@@ -52,13 +53,21 @@ class Dashboard extends Component {
   };
 
   handleTogglePlay = () => {
-    this.setState(state => ({
-      playing: !state.playing
-    }));
+    console.log('toggle play');
+    this.setState(
+      state => ({
+        playing: !state.playing
+      }),
+      this.sendStateUpdate
+    );
+  };
+
+  sendStateUpdate = () => {
+    ipc.send('updated-state', this.state);
   };
 
   render() {
-    const { files, playing } = this.state;
+    const { files, playing, windows } = this.state;
     return (
       <Wrapper>
         <Inner>
@@ -70,9 +79,11 @@ class Dashboard extends Component {
           >
             {playing ? 'Stop' : 'Start'}
           </Button>
-          {files.map((f, i) => (
-            <Video key={i} playing={playing} startTime={i / 100} src={f} />
-          ))}
+          {windows.length > 0 ? (
+            windows.map((w, i) => <WindowDetails key={i} {...w} />)
+          ) : (
+            <H2>No Windows Registered</H2>
+          )}
         </Inner>
       </Wrapper>
     );

@@ -14,7 +14,6 @@ const htmlPath = path.join(__dirname, '/../../build/index.html');
 
 function start() {
   ipc.on('state-update', function(event, arg) {
-    console.log('main-state-update', arg);
     // do child process or other data manipulation and name it manData
     event.sender.send('updated-state', arg);
   });
@@ -47,16 +46,14 @@ app.on('activate', function() {
 function createWindow(display, id) {
   // Create the browser window.
   const newWindow = new BrowserWindow({
-    width: display.bounds.width,
-    height: display.bounds.height,
+    width: display.bounds.width || 800,
+    height: display.bounds.height || 600,
     // frame: false,
-    // width: 800,
-    // height: 600,
     webPreferences: {
       webSecurity: false
     }
   });
-  const params = `?${display.primary ? 'main' : i}`;
+  const params = `?${display.primary ? 'main' : id}`;
   // and load the index.html of the app.
   const startUrl =
     process.env.ELECTRON_START_URL + params ||
@@ -88,6 +85,7 @@ function createWindow(display, id) {
 
 function createWindows() {
   const displayInfo = getDisplays();
+  displayInfo.displays.push({ bounds: {} });
   windows = displayInfo.displays.map((d, i) => createWindow(d, i));
 }
 
