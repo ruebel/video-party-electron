@@ -1,11 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactPlayer from 'react-player';
+import Video from './Video';
+
+const { ipcRenderer: ipc } = window.require('electron');
 
 class Player extends React.Component {
   state = {
-    ready: false
+    playing: false,
+    ready: false,
+    src: null,
+    starTime: 0
   };
+
+  componentDidMount() {
+    ipc.send('window-registered', this.props.id);
+
+    ipc.on('updated-state', (e, args) => {
+      console.log('updated-state', e, args);
+    });
+  }
 
   handleDuration = duration => {
     if (!this.state.ready && this.props.startTime) {
@@ -18,24 +31,17 @@ class Player extends React.Component {
 
   render() {
     return (
-      <ReactPlayer
-        ref={player => (this.player = player)}
-        loop
-        muted
-        onDuration={this.handleDuration}
-        onError={e => console.error(e.target.error)}
-        playing={this.props.playing}
-        url={this.props.src ? 'file://' + this.props.src : null}
+      <Video
+        playing={this.state.playing}
+        src={this.state.src}
+        startTime={this.state.startTime}
       />
     );
   }
 }
 
 Player.propsTypes = {
-  playing: PropTypes.bool,
-  src: PropTypes.string,
-  // Percentage of the way through the video will start (0 - 1)
-  startTime: PropTypes.number
+  id: PropTypes.string.isRequired
 };
 
 export default Player;

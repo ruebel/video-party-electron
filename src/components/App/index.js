@@ -1,17 +1,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-
-import Button from '../Button';
-import H1 from '../typography/H1';
-import OpenFolder from '../OpenFolder';
+import Dashboard from '../Dashboard';
 import Player from '../Player';
-
-import { getFilesInFolder } from '../utils';
-
-const Inner = styled.div`
-  max-width: 600px;
-  width: 100%;
-`;
 
 const Wrapper = styled.div`
   background: ${p => p.theme.color.dark};
@@ -26,39 +16,28 @@ const Wrapper = styled.div`
 
 class App extends Component {
   state = {
-    files: [],
-    folder: '',
-    playing: false
+    id: null,
+    main: false
   };
 
-  handleFolderChange = folder => {
-    const files = getFilesInFolder(folder[0]);
-    this.setState({
-      files,
-      folder
-    });
-  };
-
-  togglePlay = () => {
-    this.setState(state => ({
-      playing: !state.playing
-    }));
-  };
+  componentDidMount() {
+    const id = window.location.search.substring(
+      1,
+      window.location.search.length
+    );
+    if (id === 'main') {
+      this.setState({
+        main: true
+      });
+    } else {
+      this.setState({ id });
+    }
+  }
 
   render() {
-    const { files, playing } = this.state;
     return (
       <Wrapper>
-        <Inner>
-          <H1>Video Party</H1>
-          <OpenFolder onFolderSelect={this.handleFolderChange} />
-          <Button disabled={!files || !files.length} onClick={this.togglePlay}>
-            {playing ? 'Stop' : 'Start'}
-          </Button>
-          {files.map((f, i) => (
-            <Player key={i} playing={playing} startTime={i / 100} src={f} />
-          ))}
-        </Inner>
+        {this.state.main ? <Dashboard /> : <Player id={this.state.id} />}
       </Wrapper>
     );
   }

@@ -1,5 +1,5 @@
 import ReactPlayer from 'react-player';
-const remote = window.require('electron').remote;
+const { remote } = window.require('electron');
 const fs = remote.require('fs');
 const path = remote.require('path');
 
