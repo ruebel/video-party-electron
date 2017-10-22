@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Video from './Video';
-import actions from '../actions.json';
+import actions from '../../actions.json';
 
 const { ipcRenderer: ipc } = window.require('electron');
 
@@ -13,9 +13,12 @@ const Id = styled.div`
 `;
 
 const Wrapper = styled.div`
+  background: #000000;
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100vw;
+  height: 100vh;
 `;
 
 class Player extends React.Component {
