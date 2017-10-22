@@ -7,8 +7,7 @@ const url = require('url');
 const actions = require('../actions.json');
 const htmlPath = path.join(__dirname, '/../../build/index.html');
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
+// Keep a global reference of the window object
 let mainWindow;
 let windows = [];
 
@@ -33,7 +32,9 @@ app.on('activate', function() {
     start();
   }
 });
-
+/**
+ * Create a window instance
+ */
 function createWindow(display = {}, id) {
   // Create the browser window.
   const newWindow = new BrowserWindow({
@@ -74,47 +75,43 @@ function createWindow(display = {}, id) {
 }
 
 function createWindows() {
-  const displayInfo = getDisplays();
-  displayInfo.displays.push({});
-  windows = displayInfo.displays.map((d, i) => createWindow(d, i));
+  // Create a window for each display attached
+  const displays = getDisplays();
+  // Assign to global to keep reference
+  windows = displays.map((d, i) => createWindow(d, i));
 }
-
+/**
+ * Get all displays and mark the primary
+ */
 function getDisplays() {
   const displays = electron.screen.getAllDisplays();
-  const bounds = displays.reduce(
-    (total, display) => {
-      return {
-        height: total.height + display.bounds.height,
-        width: total.width + display.bounds.width
-      };
-    },
-    { height: 0, width: 0 }
+  return displays.map(d =>
+    Object.assign(d, {
+      primary: d.bounds.x === 0 && d.bounds.y === 0
+    })
   );
-  return {
-    bounds,
-    displays: displays.map(d =>
-      Object.assign(d, {
-        primary: d.bounds.x === 0 && d.bounds.y === 0
-      })
-    )
-  };
 }
 
 function registerEventEmitter(action) {
   ipc.on(action, function(event, arg) {
+    // Bradcast the event to all windows
     windows.forEach(w => w.window.webContents.send(action, arg));
   });
 }
-
+/**
+ * Main entry point of electron
+ */
 function start() {
   // Register all of our event emitters that will broadcast events
   // to all registerd windows
   registerEventEmitter(actions.STATE_UPDATE);
   registerEventEmitter(actions.REGISTER);
   ipc.on(actions.ADD_WINDOW, function(event, arg) {
+    // Create the new window (when it is ready it will register itself)
     const newWindow = createWindow({}, Math.max(...windows.map(w => w.id)) + 1);
+    // Add it to the global window ref list
     windows = [...windows, newWindow];
   });
-  // Create all of our windows
+  // Create all default windows
   createWindows();
 }
