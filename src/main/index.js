@@ -4,22 +4,13 @@ const BrowserWindow = electron.BrowserWindow;
 const ipc = electron.ipcMain;
 const path = require('path');
 const url = require('url');
+const actions = require('../actions.json');
+const htmlPath = path.join(__dirname, '/../../build/index.html');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 let windows = [];
-
-const htmlPath = path.join(__dirname, '/../../build/index.html');
-
-function start() {
-  ipc.on('state-update', function(event, arg) {
-    // do child process or other data manipulation and name it manData
-    event.sender.send('updated-state', arg);
-  });
-  // init
-  createWindows();
-}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -43,11 +34,11 @@ app.on('activate', function() {
   }
 });
 
-function createWindow(display, id) {
+function createWindow(display = {}, id) {
   // Create the browser window.
   const newWindow = new BrowserWindow({
-    width: display.bounds.width || 800,
-    height: display.bounds.height || 600,
+    width: display.bounds ? display.bounds.width : null || 800,
+    height: display.bounds ? display.bounds.height : null || 600,
     // frame: false,
     webPreferences: {
       webSecurity: false
@@ -68,24 +59,23 @@ function createWindow(display, id) {
 
   // Emitted when the window is closed.
   newWindow.on('closed', function() {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    windows = windows.filter(w => w !== newWindow);
+    windows = windows.filter(w => w.id !== id);
     if (display.primary) {
       mainWindow = null;
       app.quit();
+    } else {
+      mainWindow.webContents.send(actions.CLOSE_WINDOW, id);
     }
   });
   if (display.primary) {
     mainWindow = newWindow;
   }
-  return newWindow;
+  return { id, window: newWindow };
 }
 
 function createWindows() {
   const displayInfo = getDisplays();
-  displayInfo.displays.push({ bounds: {} });
+  displayInfo.displays.push({});
   windows = displayInfo.displays.map((d, i) => createWindow(d, i));
 }
 
@@ -108,4 +98,23 @@ function getDisplays() {
       })
     )
   };
+}
+
+function registerEventEmitter(action) {
+  ipc.on(action, function(event, arg) {
+    windows.forEach(w => w.window.webContents.send(action, arg));
+  });
+}
+
+function start() {
+  // Register all of our event emitters that will broadcast events
+  // to all registerd windows
+  registerEventEmitter(actions.STATE_UPDATE);
+  registerEventEmitter(actions.REGISTER);
+  ipc.on(actions.ADD_WINDOW, function(event, arg) {
+    const newWindow = createWindow({}, Math.max(...windows.map(w => w.id)) + 1);
+    windows = [...windows, newWindow];
+  });
+  // Create all of our windows
+  createWindows();
 }

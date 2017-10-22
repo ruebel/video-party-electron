@@ -8,6 +8,8 @@ import OpenFolder from '../OpenFolder';
 import WindowDetails from './WindowDetails';
 
 import { getFilesInFolder } from '../utils';
+import actions from '../../actions.json';
+import { getNextVideos, getRandomInRange } from './utils';
 
 const { ipcRenderer: ipc } = window.require('electron');
 
@@ -33,16 +35,35 @@ class Dashboard extends Component {
     files: [],
     folder: '',
     playing: false,
+    timeout: null,
     windows: []
   };
 
   componentDidMount() {
-    ipc.on('window-registered', (e, args) => {
+    ipc.on(actions.REGISTER, (e, newWindow) => {
       this.setState(state => ({
-        windows: [...state.windows, args]
+        windows: [...state.windows, newWindow]
+      }));
+    });
+    ipc.on(actions.CLOSE_WINDOW, (e, id) => {
+      this.setState(state => ({
+        // eslint-disable-next-line
+        windows: state.windows.filter(w => w.id != id)
       }));
     });
   }
+
+  componentWillUnmount() {
+    ipc.removeAllListeners(actions.STATE_UPDATE);
+    ipc.removeAllListeners(actions.REGISTER);
+    if (this.state.timeout) {
+      clearTimeout(this.state.timeout);
+    }
+  }
+
+  addWindow = () => {
+    ipc.send(actions.ADD_WINDOW);
+  };
 
   handleFolderChange = folder => {
     const files = getFilesInFolder(folder[0]);
@@ -53,17 +74,31 @@ class Dashboard extends Component {
   };
 
   handleTogglePlay = () => {
-    console.log('toggle play');
+    if (this.state.playing && this.state.timeout) {
+      clearTimeout(this.state.timeout);
+    }
     this.setState(
       state => ({
-        playing: !state.playing
+        playing: !state.playing,
+        timeout: null
       }),
-      this.sendStateUpdate
+      () => {
+        this.sendStateUpdate();
+        this.next();
+      }
     );
   };
 
+  next = () => {
+    if (this.state.playing) {
+      const timeout = setTimeout(this.next, getRandomInRange(5000, 30000));
+      const windows = getNextVideos(this.state.windows, this.state.files);
+      this.setState({ timeout, windows }, this.sendStateUpdate);
+    }
+  };
+
   sendStateUpdate = () => {
-    ipc.send('updated-state', this.state);
+    ipc.send(actions.STATE_UPDATE, this.state);
   };
 
   render() {
@@ -79,11 +114,15 @@ class Dashboard extends Component {
           >
             {playing ? 'Stop' : 'Start'}
           </Button>
-          {windows.length > 0 ? (
-            windows.map((w, i) => <WindowDetails key={i} {...w} />)
-          ) : (
-            <H2>No Windows Registered</H2>
-          )}
+          <Button onClick={this.addWindow}>Add Window</Button>
+          <div>
+            <H2>Windows</H2>
+            {windows.length > 0 ? (
+              windows.map((w, i) => <WindowDetails key={i} {...w} />)
+            ) : (
+              <div>No Windows Registered</div>
+            )}
+          </div>
         </Inner>
       </Wrapper>
     );

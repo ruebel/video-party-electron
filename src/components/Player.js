@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Video from './Video';
+import actions from '../actions.json';
 
 const { ipcRenderer: ipc } = window.require('electron');
 
@@ -9,6 +10,12 @@ const Id = styled.div`
   height: 100%;
   width: 100%;
   font-size: 100vh;
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 class Player extends React.Component {
@@ -20,11 +27,26 @@ class Player extends React.Component {
   };
 
   componentDidMount() {
-    ipc.send('window-registered', this.props.id);
+    if (this.props.id) {
+      this.register(this.props.id);
+    }
 
-    ipc.on('updated-state', (e, args) => {
-      this.setState(...args.windows.find(w => w.id === this.props.id));
+    ipc.on(actions.STATE_UPDATE, (e, args) => {
+      this.setState({
+        playing: args.playing,
+        ...args.windows.find(w => w.id === this.props.id)
+      });
     });
+  }
+
+  componentWillReceiveProps(next) {
+    if (next.id !== this.props.id) {
+      this.register(next.id);
+    }
+  }
+
+  componentWillUnmount() {
+    ipc.removeAllListeners(actions.STATE_UPDATE);
   }
 
   handleDuration = duration => {
@@ -36,15 +58,23 @@ class Player extends React.Component {
     }
   };
 
+  register = id => {
+    setTimeout(() => ipc.send(actions.REGISTER, { id }), 250);
+  };
+
   render() {
-    return this.state.src ? (
-      <Video
-        playing={this.state.playing}
-        src={this.state.src}
-        startTime={this.state.startTime}
-      />
-    ) : (
-      <Id>{this.props.id}</Id>
+    return (
+      <Wrapper>
+        {this.state.src ? (
+          <Video
+            playing={this.state.playing}
+            src={this.state.src}
+            startTime={this.state.startTime}
+          />
+        ) : (
+          <Id>{this.props.id}</Id>
+        )}
+      </Wrapper>
     );
   }
 }

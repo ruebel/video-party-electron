@@ -21,11 +21,13 @@ class Video extends React.Component {
       <ReactPlayer
         ref={player => (this.player = player)}
         loop
+        height="100%"
         muted
         onDuration={this.handleDuration}
         onError={e => console.error(e.target.error)}
         playing={this.props.playing}
         url={this.props.src ? 'file://' + this.props.src : null}
+        width="100%"
       />
     );
   }
