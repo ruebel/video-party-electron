@@ -7,9 +7,8 @@ import H2 from '../typography/H2';
 import OpenFolder from '../OpenFolder';
 import WindowDetails from './WindowDetails';
 
-import { getFilesInFolder } from '../utils';
 import actions from '../../actions.json';
-import { getNextVideos, getRandomInRange } from './utils';
+import { getFilesInFolder, getNextVideos, getRandomInRange } from './utils';
 
 const { ipcRenderer: ipc } = window.require('electron');
 
