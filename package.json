@@ -37,6 +37,10 @@
       ]
     ]
   },
+  "eslintConfig": {
+    "extends": "gsandf-react",
+    "parser": "babel-eslint"
+  },
   "devDependencies": {
     "babel-cli": "^6.18.0",
     "babel-core": "^6.18.2",
@@ -46,6 +50,8 @@
     "babel-preset-stage-2": "^6.18.0",
     "babel-watch": "^2.0.5",
     "electron": "^1.7.9",
+    "eslint": "^4.9.0",
+    "eslint-config-gsandf-react": "^0.2.0",
     "foreman": "^2.0.0",
     "react-scripts": "1.0.14"
   },

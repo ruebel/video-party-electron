@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Video from './Video';
+
 import actions from '../../actions.json';
+import { getVideoName } from '../utils';
 
 const { ipcRenderer: ipc } = window.require('electron');
 
@@ -10,6 +12,14 @@ const Id = styled.div`
   height: 100%;
   width: 100%;
   font-size: 100vh;
+`;
+
+const Name = styled.div`
+  position: absolute;
+  bottom: 15%;
+  left: 0;
+  width: 100%;
+  font-size: 1.5em;
 `;
 
 const Wrapper = styled.div`
@@ -25,6 +35,7 @@ class Player extends React.Component {
   state = {
     playing: false,
     ready: false,
+    showName: false,
     src: null,
     startTime: 0
   };
@@ -37,6 +48,7 @@ class Player extends React.Component {
     ipc.on(actions.STATE_UPDATE, (e, args) => {
       this.setState({
         playing: args.playing,
+        showName: args.showName,
         ...args.windows.find(w => w.id === this.props.id)
       });
     });
@@ -77,13 +89,15 @@ class Player extends React.Component {
         ) : (
           <Id>{this.props.id}</Id>
         )}
+        {this.state.showName && <Name>{getVideoName(this.state.src)}</Name>}
       </Wrapper>
     );
   }
 }
 
-Player.propsTypes = {
-  id: PropTypes.string.isRequired
+Player.propTypes = {
+  id: PropTypes.string,
+  startTime: PropTypes.number
 };
 
 export default Player;

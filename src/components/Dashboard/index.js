@@ -3,14 +3,25 @@ import styled from 'styled-components';
 
 import Button from '../Button';
 import H1 from '../typography/H1';
-import H2 from '../typography/H2';
 import OpenFolder from '../OpenFolder';
+import Toggle from '../Toggle';
 import WindowDetails from './WindowDetails';
 
 import actions from '../../actions.json';
 import { getFilesInFolder, getNextVideos, getRandomInRange } from './utils';
 
 const { ipcRenderer: ipc } = window.require('electron');
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  & * >  {
+    flex: 1;
+  }
+`;
 
 const Inner = styled.div`
   max-width: 600px;
@@ -34,6 +45,7 @@ class Dashboard extends Component {
     files: [],
     folder: '',
     playing: false,
+    showName: false,
     timeout: null,
     windows: []
   };
@@ -88,6 +100,10 @@ class Dashboard extends Component {
     );
   };
 
+  handleToggleShowName = showName => {
+    this.setState({ showName }, this.sendStateUpdate);
+  };
+
   next = () => {
     if (this.state.playing) {
       const timeout = setTimeout(this.next, getRandomInRange(5000, 30000));
@@ -107,21 +123,21 @@ class Dashboard extends Component {
         <Inner>
           <H1>Video Party</H1>
           <OpenFolder onFolderSelect={this.handleFolderChange} />
-          <Button
-            disabled={!files || !files.length}
-            onClick={this.handleTogglePlay}
-          >
-            {playing ? 'Stop' : 'Start'}
-          </Button>
-          <Button onClick={this.addWindow}>Add Window</Button>
-          <div>
-            <H2>Windows</H2>
-            {windows.length > 0 ? (
-              windows.map((w, i) => <WindowDetails key={i} {...w} />)
-            ) : (
-              <div>No Windows Registered</div>
-            )}
-          </div>
+          <ButtonWrapper>
+            <Button
+              disabled={!files || !files.length}
+              onClick={this.handleTogglePlay}
+            >
+              {playing ? 'Stop' : 'Start'}
+            </Button>
+            <Button onClick={this.addWindow}>Add Window</Button>
+            <Toggle
+              onChange={this.handleToggleShowName}
+              title="Show Names"
+              value={this.state.showName}
+            />
+          </ButtonWrapper>
+          <WindowDetails windows={windows} />
         </Inner>
       </Wrapper>
     );
