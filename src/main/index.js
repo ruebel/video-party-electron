@@ -17,7 +17,7 @@ let windows = [];
 app.on('ready', start);
 
 // Quit when all windows are closed.
-app.on('window-all-closed', function() {
+app.on('window-all-closed', function () {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
@@ -25,7 +25,7 @@ app.on('window-all-closed', function() {
   }
 });
 
-app.on('activate', function() {
+app.on('activate', function () {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
@@ -38,12 +38,11 @@ app.on('activate', function() {
 function createWindow(display = {}, id) {
   // Create the browser window.
   const newWindow = new BrowserWindow({
-    width: display.bounds ? display.bounds.width : null || 800,
     height: display.bounds ? display.bounds.height : null || 600,
-    // frame: false,
     webPreferences: {
       webSecurity: false
-    }
+    },
+    width: display.bounds ? display.bounds.width : null || 800
   });
   const params = `?${display.primary ? 'main' : id}`;
   // and load the index.html of the app.
@@ -59,7 +58,7 @@ function createWindow(display = {}, id) {
   newWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
-  newWindow.on('closed', function() {
+  newWindow.on('closed', function () {
     windows = windows.filter(w => w.id !== id);
     if (display.primary) {
       mainWindow = null;
@@ -93,7 +92,7 @@ function getDisplays() {
 }
 
 function registerEventEmitter(action) {
-  ipc.on(action, function(event, arg) {
+  ipc.on(action, function (event, arg) {
     // Bradcast the event to all windows
     windows.forEach(w => w.window.webContents.send(action, arg));
   });
@@ -106,7 +105,7 @@ function start() {
   // to all registerd windows
   registerEventEmitter(actions.STATE_UPDATE);
   registerEventEmitter(actions.REGISTER);
-  ipc.on(actions.ADD_WINDOW, function(event, arg) {
+  ipc.on(actions.ADD_WINDOW, function (event, arg) {
     // Create the new window (when it is ready it will register itself)
     const newWindow = createWindow({}, Math.max(...windows.map(w => w.id)) + 1);
     // Add it to the global window ref list

@@ -21,7 +21,7 @@ export const getNextVideos = (windows, files) => {
     return {
       ...w,
       src: files[getRandomInt(0, files.length - 1)],
-      startTime: Math.random()
+      startTime: getRandomInRange(0.05, 0.95)
     };
   });
 };
