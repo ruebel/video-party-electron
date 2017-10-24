@@ -11,7 +11,7 @@
     "electron": "electron .",
     "start": "nf start -p 3000",
     "start:electron": "node src/main/electron-wait-react",
-    "start:react": "react-scripts start",
+    "start:react": "BROWSER=none react-scripts start",
     "test": "react-scripts test --env=jsdom"
   },
   "babel": {
