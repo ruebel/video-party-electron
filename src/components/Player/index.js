@@ -34,7 +34,6 @@ const Wrapper = styled.div`
 class Player extends React.Component {
   state = {
     playing: false,
-    ready: false,
     showName: false,
     src: null,
     startTime: 0
@@ -64,15 +63,6 @@ class Player extends React.Component {
     ipc.removeAllListeners(actions.STATE_UPDATE);
   }
 
-  handleDuration = duration => {
-    if (!this.state.ready && this.props.startTime) {
-      this.player.seekTo(duration * this.props.startTime);
-      this.setState({
-        ready: true
-      });
-    }
-  };
-
   register = id => {
     setTimeout(() => ipc.send(actions.REGISTER, { id }), 250);
   };
@@ -96,8 +86,7 @@ class Player extends React.Component {
 }
 
 Player.propTypes = {
-  id: PropTypes.string,
-  startTime: PropTypes.number
+  id: PropTypes.string
 };
 
 export default Player;

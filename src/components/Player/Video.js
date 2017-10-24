@@ -4,13 +4,23 @@ import ReactPlayer from 'react-player';
 
 class Video extends React.Component {
   state = {
+    duration: 0,
     ready: false
   };
+
+  componentWillReceiveProps(next) {
+    if (next.src !== this.props.src) {
+      this.setState({
+        ready: false
+      });
+    }
+  }
 
   handleDuration = duration => {
     if (!this.state.ready && this.props.startTime) {
       this.player.seekTo(duration * this.props.startTime);
       this.setState({
+        duration,
         ready: true
       });
     }
@@ -33,7 +43,7 @@ class Video extends React.Component {
   }
 }
 
-Video.propsTypes = {
+Video.propTypes = {
   playing: PropTypes.bool,
   src: PropTypes.string,
   // Percentage of the way through the video will start (0 - 1)
