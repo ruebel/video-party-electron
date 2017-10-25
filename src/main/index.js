@@ -3,14 +3,16 @@ const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const ipc = electron.ipcMain;
 const path = require('path');
-const url = require('url');
 const actions = require('../actions.json');
-const htmlPath = path.join(__dirname, '/../../build/index.html');
+const htmlPath = path.join(__dirname, './../../build/index.html');
 
 // Keep a global reference of the window object
 let mainWindow;
 let windows = [];
 
+process.on('uncaughtException', function (err) {
+  console.log(err);
+});
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -47,15 +49,15 @@ function createWindow(display = {}, id) {
   const params = `?${display.primary ? 'main' : id}`;
   // and load the index.html of the app.
   const startUrl =
-    process.env.ELECTRON_START_URL + params ||
-    url.format({
-      pathname: htmlPath + params,
-      protocol: 'file:',
-      slashes: true
-    });
+    (process.env.ELECTRON_DEV
+      ? process.env.ELECTRON_START_URL
+      : `file://${htmlPath}`) + params;
+
   newWindow.loadURL(startUrl);
-  // Open the DevTools.
-  newWindow.webContents.openDevTools();
+  if (process.env.ELECTRON_DEV) {
+    // Open the DevTools.
+    newWindow.webContents.openDevTools();
+  }
 
   // Emitted when the window is closed.
   newWindow.on('closed', function () {
