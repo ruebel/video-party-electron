@@ -41,6 +41,7 @@ function createWindow(display = {}, id) {
   // Create the browser window.
   const newWindow = new BrowserWindow({
     height: display.bounds ? display.bounds.height : null || 600,
+    icon: path.join(__dirname, './../../public/icon/icon32x32.png'),
     webPreferences: {
       webSecurity: false
     },
