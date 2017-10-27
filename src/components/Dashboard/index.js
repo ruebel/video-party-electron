@@ -2,8 +2,10 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 
 import Button from '../Button';
+import ButtonRow from '../ButtonRow';
 import H1 from '../typography/H1';
 import OpenFolder from '../OpenFolder';
+import Range from '../Range';
 import Toggle from '../Toggle';
 import WindowDetails from './WindowDetails';
 
@@ -11,17 +13,6 @@ import actions from '../../actions.json';
 import { getFilesInFolder, getNextVideos, getRandomInRange } from './utils';
 
 const { ipcRenderer: ipc } = window.require('electron');
-
-const ButtonWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-
-  & * >  {
-    flex: 1;
-  }
-`;
 
 const Inner = styled.div`
   max-width: 600px;
@@ -47,6 +38,10 @@ class Dashboard extends Component {
     playing: false,
     showName: false,
     timeout: null,
+    timeRange: {
+      max: 30,
+      min: 1
+    },
     windows: []
   };
 
@@ -77,10 +72,17 @@ class Dashboard extends Component {
   };
 
   handleFolderChange = folder => {
+    if (!folder) return;
     const files = getFilesInFolder(folder[0]);
     this.setState({
       files,
       folder
+    });
+  };
+
+  handleTimeRangeChange = timeRange => {
+    this.setState({
+      timeRange
     });
   };
 
@@ -106,7 +108,13 @@ class Dashboard extends Component {
 
   next = () => {
     if (this.state.playing) {
-      const timeout = setTimeout(this.next, getRandomInRange(5000, 30000));
+      const timeout = setTimeout(
+        this.next,
+        getRandomInRange(
+          this.state.timeRange.min * 1000,
+          this.state.timeRange.max * 1000
+        )
+      );
       const windows = getNextVideos(this.state.windows, this.state.files);
       this.setState({ timeout, windows }, this.sendStateUpdate);
     }
@@ -122,8 +130,7 @@ class Dashboard extends Component {
       <Wrapper>
         <Inner>
           <H1>Video Party</H1>
-          <OpenFolder onFolderSelect={this.handleFolderChange} />
-          <ButtonWrapper>
+          <ButtonRow>
             <Button
               disabled={!files || !files.length}
               onClick={this.handleTogglePlay}
@@ -136,7 +143,13 @@ class Dashboard extends Component {
               title="Show Names"
               value={this.state.showName}
             />
-          </ButtonWrapper>
+          </ButtonRow>
+          <OpenFolder onFolderSelect={this.handleFolderChange} />
+          <Range
+            onChange={this.handleTimeRangeChange}
+            title="Shuffle Time (sec)"
+            value={this.state.timeRange}
+          />
           <WindowDetails windows={windows} />
         </Inner>
       </Wrapper>

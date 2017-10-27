@@ -9,11 +9,16 @@ const Input = styled.input`
   height: 25px;
 `;
 
+const InputWrapper = styled.div`
+  align-items: center;
+  display: flex;
+`;
+
 const Label = styled.div`margin-right: 25px;`;
 
 const Wrapper = styled.div`
-  align-items: center;
-  display: flex;
+  margin-top: 25px;
+  margin-bottom: 25px;
 `;
 
 class OpenFolder extends React.Component {
@@ -33,8 +38,10 @@ class OpenFolder extends React.Component {
     return (
       <Wrapper>
         <Label>Select Folder</Label>
-        <Input value={this.state.folder} />
-        <Button onClick={this.openFolder}>...</Button>
+        <InputWrapper>
+          <Input value={this.state.folder} />
+          <Button onClick={this.openFolder}>...</Button>
+        </InputWrapper>
       </Wrapper>
     );
   }
