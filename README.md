@@ -13,7 +13,7 @@
 `yarn build`
 
 ## acknowledgements
-[Electron With Create React App]https://github.com/csepulv/electron-with-create-react-app
+[Electron With Create React App](https://github.com/csepulv/electron-with-create-react-app)
 
 ## license
 MIT © [Randy Uebel](randy.uebel@gmail.com)
