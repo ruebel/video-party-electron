@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import Video from './Video';
 
 import actions from '../../actions.json';
-import { getVideoName } from '../utils';
+import { colorModes, getVideoName } from '../utils';
 
 const { ipcRenderer: ipc } = window.require('electron');
 
@@ -28,8 +28,10 @@ const Colorize = styled.div`
   top: 0;
   height: 100%;
   width: 100%;
-  mix-blend-mode: darken;
-  background: ${p => p.color};
+  mix-blend-mode: ${p =>
+    p.mode === colorModes.blackAndWhite ? 'color' : 'darken'};
+  background: ${p =>
+    p.mode === colorModes.blackAndWhite ? '#000000' : p.color};
 `;
 
 const Wrapper = styled.div`
@@ -90,7 +92,9 @@ class Player extends React.Component {
           <Id>{this.props.id}</Id>
         )}
         {this.state.showName && <Name>{getVideoName(this.state.src)}</Name>}
-        {this.state.colorize && <Colorize color={this.state.colorize} />}
+        {this.state.colorMode !== colorModes.regular && (
+          <Colorize color={this.state.color} mode={this.state.colorMode} />
+        )}
       </Wrapper>
     );
   }

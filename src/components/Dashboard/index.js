@@ -6,11 +6,13 @@ import ButtonRow from '../ButtonRow';
 import H1 from '../typography/H1';
 import OpenFolder from '../OpenFolder';
 import Range from '../Range';
+import Select from '../Select';
 import Toggle from '../Toggle';
 import WindowDetails from './WindowDetails';
 
 import actions from '../../actions.json';
 import { getFilesInFolder, getNextVideos, getRandomInRange } from './utils';
+import { colorModes } from '../utils';
 
 const { ipcRenderer: ipc } = window.require('electron');
 
@@ -33,7 +35,7 @@ const Wrapper = styled.div`
 
 class Dashboard extends Component {
   state = {
-    colorize: false,
+    colorMode: 'normal',
     files: [],
     folder: '',
     playing: false,
@@ -72,6 +74,10 @@ class Dashboard extends Component {
     ipc.send(actions.ADD_WINDOW);
   };
 
+  handleColorModeChange = colorMode => {
+    this.setState({ colorMode }, this.sendStateUpdate);
+  };
+
   handleFolderChange = folder => {
     if (!folder) return;
     const files = getFilesInFolder(folder[0]);
@@ -85,10 +91,6 @@ class Dashboard extends Component {
     this.setState({
       timeRange
     });
-  };
-
-  handleToggleColorize = colorize => {
-    this.setState({ colorize }, this.sendStateUpdate);
   };
 
   handleTogglePlay = () => {
@@ -121,7 +123,7 @@ class Dashboard extends Component {
         )
       );
       const windows = getNextVideos(this.state.windows, this.state.files, {
-        colorize: this.state.colorize
+        colorMode: this.state.colorMode
       });
       this.setState({ timeout, windows }, this.sendStateUpdate);
     }
@@ -150,12 +152,13 @@ class Dashboard extends Component {
               title="Show Names"
               value={this.state.showName}
             />
-            <Toggle
-              onChange={this.handleToggleColorize}
-              title="Colorize"
-              value={this.state.colorize}
-            />
           </ButtonRow>
+          <Select
+            onChange={this.handleColorModeChange}
+            options={Object.values(colorModes)}
+            title="Color Mode"
+            value={this.state.colorMode}
+          />
           <OpenFolder onFolderSelect={this.handleFolderChange} />
           <Range
             onChange={this.handleTimeRangeChange}

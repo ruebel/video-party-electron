@@ -1,4 +1,5 @@
 import ReactPlayer from 'react-player';
+import { colorModes } from '../utils';
 const { remote } = window.require('electron');
 const fs = remote.require('fs');
 const path = remote.require('path');
@@ -20,7 +21,11 @@ export const getNextVideos = (windows, files, settings) => {
   return windows.map((w, i) => {
     return {
       ...w,
-      colorize: settings.colorize ? getRandomColor() : null,
+      color: getRandomColor(),
+      colorMode:
+        settings.colorMode === colorModes.random
+          ? getRandomColorMode()
+          : settings.colorMode,
       src: files[getRandomInt(0, files.length - 1)],
       startTime: getRandomInRange(0.05, 0.95)
     };
@@ -29,6 +34,11 @@ export const getNextVideos = (windows, files, settings) => {
 
 export const getRandomColor = () => {
   return `hsl(${Math.random() * 360}, 100%, 50%)`;
+};
+
+export const getRandomColorMode = () => {
+  const keys = Object.keys(colorModes);
+  return Object.values(colorModes)[getRandomInt(0, keys.length - 2)];
 };
 
 export const getRandomInRange = (min, max) => {
