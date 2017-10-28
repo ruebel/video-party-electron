@@ -33,6 +33,7 @@ const Wrapper = styled.div`
 
 class Dashboard extends Component {
   state = {
+    colorize: false,
     files: [],
     folder: '',
     playing: false,
@@ -86,6 +87,10 @@ class Dashboard extends Component {
     });
   };
 
+  handleToggleColorize = colorize => {
+    this.setState({ colorize }, this.sendStateUpdate);
+  };
+
   handleTogglePlay = () => {
     if (this.state.playing && this.state.timeout) {
       clearTimeout(this.state.timeout);
@@ -115,7 +120,9 @@ class Dashboard extends Component {
           this.state.timeRange.max * 1000
         )
       );
-      const windows = getNextVideos(this.state.windows, this.state.files);
+      const windows = getNextVideos(this.state.windows, this.state.files, {
+        colorize: this.state.colorize
+      });
       this.setState({ timeout, windows }, this.sendStateUpdate);
     }
   };
@@ -142,6 +149,11 @@ class Dashboard extends Component {
               onChange={this.handleToggleShowName}
               title="Show Names"
               value={this.state.showName}
+            />
+            <Toggle
+              onChange={this.handleToggleColorize}
+              title="Colorize"
+              value={this.state.colorize}
             />
           </ButtonRow>
           <OpenFolder onFolderSelect={this.handleFolderChange} />

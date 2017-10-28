@@ -22,6 +22,16 @@ const Name = styled.div`
   font-size: 1.5em;
 `;
 
+const Colorize = styled.div`
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  mix-blend-mode: darken;
+  background: ${p => p.color};
+`;
+
 const Wrapper = styled.div`
   background: #000000;
   display: flex;
@@ -80,6 +90,7 @@ class Player extends React.Component {
           <Id>{this.props.id}</Id>
         )}
         {this.state.showName && <Name>{getVideoName(this.state.src)}</Name>}
+        {this.state.colorize && <Colorize color={this.state.colorize} />}
       </Wrapper>
     );
   }
