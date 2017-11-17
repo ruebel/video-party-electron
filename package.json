@@ -7,8 +7,10 @@
   "productName": "Video Party",
   "homepage": "./",
   "scripts": {
-    "build": "NODE_ENV=production npm run build:react && npm run build:electron",
-    "build:electron": "electron-packager . --out=dist/osx --platform=darwin --arch=x64 --overwrite --package-manager=yarn --app-bundle-id=com.electron.video-party --prune=true --icon=./public/icon/icon.icns",
+    "build":
+      "NODE_ENV=production npm run build:react && npm run build:electron",
+    "build:electron":
+      "electron-packager . --out=dist/osx --platform=darwin --arch=x64 --overwrite --package-manager=yarn --app-bundle-id=com.electron.video-party --prune=true --icon=./public/icon/icon.icns",
     "build:react": "react-scripts build",
     "eject": "react-scripts eject",
     "electron": "electron .",
@@ -52,6 +54,7 @@
     "babel-preset-env": "^1.2.1",
     "babel-preset-stage-2": "^6.18.0",
     "babel-watch": "^2.0.5",
+    "electron": "^1.7.9",
     "electron-packager": "^9.1.0",
     "eslint": "^4.9.0",
     "eslint-config-gsandf-react": "^0.2.0",
@@ -59,7 +62,6 @@
     "react-scripts": "1.0.14"
   },
   "dependencies": {
-    "electron": "^1.7.9",
     "prop-types": "^15.6.0",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
